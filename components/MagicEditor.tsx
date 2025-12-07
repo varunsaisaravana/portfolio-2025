@@ -14,7 +14,7 @@ const LOADING_MESSAGES = [
 
 const SAMPLE_IMAGES = [
   { url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80', label: 'City' },
-  { url: 'https://images.unsplash.com/photo-1501854140884-074bf86ed91c?w=800&q=80', label: 'Nature' },
+  { url: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80', label: 'Nature' },
   { url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80', label: 'Tech' },
   { url: 'https://images.unsplash.com/photo-1489824904134-891ab64532f1?w=800&q=80', label: 'Classic Car' }
 ];
