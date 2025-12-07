@@ -79,31 +79,33 @@ const AiPromptGuide: React.FC<AiPromptGuideProps> = ({ activeTab, onPromptSelect
       >
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 shadow-sm">
            {activeTab === 'edit' ? (
-             <div className="grid gap-2">
+             <div className="grid gap-2 overflow-y-auto max-h-80">
                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1">
                  <Sparkles size={12} /> Try these prompts
                </p>
                {items.map((prompt, idx) => (
-                 <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group gap-3">
-                   <p className="text-sm text-slate-700 dark:text-slate-300 font-medium truncate mr-4 italic">
+                 <div key={idx} className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group gap-3 border border-slate-100 dark:border-slate-800/50">
+                   <p className="text-sm text-slate-700 dark:text-slate-300 font-medium italic leading-relaxed">
                      "{prompt}"
                    </p>
-                   <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                   <div className="flex items-center gap-3 shrink-0 self-start md:self-auto w-full md:w-auto mt-1 md:mt-0">
                      {onPromptSelect && (
                        <button
                          onClick={() => onPromptSelect(prompt)}
-                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-indigo-900/50 dark:hover:bg-indigo-900/80 dark:text-indigo-300 transition-colors border border-indigo-200 dark:border-indigo-800"
+                         className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-indigo-900/50 dark:hover:bg-indigo-900/80 dark:text-indigo-300 transition-colors border border-indigo-200 dark:border-indigo-800 active:scale-95"
                          title="Apply this prompt to editor"
                        >
-                         <Play size={12} className="fill-current" /> Try this
+                         <Play size={14} className="fill-current" /> 
+                         <span className="md:hidden lg:inline">Try this</span>
+                         <span className="hidden md:inline lg:hidden">Try</span>
                        </button>
                      )}
                      <button
                        onClick={() => handleCopy(prompt, idx)}
-                       className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                       className="flex-none flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600"
                        title="Copy prompt"
                      >
-                       {copiedIndex === idx ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                       {copiedIndex === idx ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
                      </button>
                    </div>
                  </div>
