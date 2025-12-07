@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Section from './components/Section';
 import MagicEditor from './components/MagicEditor';
 import ImageAnalyzer from './components/ImageAnalyzer';
+import QuizGenerator from './components/QuizGenerator';
+import ChatBot from './components/ChatBot';
 import ProjectModal from './components/ProjectModal';
 import LoadingScreen from './components/LoadingScreen';
 import ScrollToTop from './components/ScrollToTop';
+import AiPromptGuide from './components/AiPromptGuide';
 import { Project } from './types';
 import { 
   Bot, 
@@ -23,7 +26,8 @@ import {
   Cpu,
   Layers,
   Wand2,
-  ScanEye
+  ScanEye,
+  FileText
 } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -37,7 +41,10 @@ const App: React.FC = () => {
     return 'dark';
   });
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [activeAiTab, setActiveAiTab] = useState<'edit' | 'analyze'>('edit');
+  const [activeAiTab, setActiveAiTab] = useState<'edit' | 'analyze' | 'quiz'>('edit');
+  
+  // Updated state to hold prompt object with timestamp to force updates and handle auto-run
+  const [editorPrompt, setEditorPrompt] = useState<{ text: string; autoRun: boolean; timestamp: number } | null>(null);
 
   // Handle Loading State
   useEffect(() => {
@@ -86,7 +93,8 @@ const App: React.FC = () => {
       imageUrl: 'https://picsum.photos/600/400?random=101',
       technologies: ['C++', 'PID Control', 'Computer Vision', 'SolidWorks', 'ROS'],
       challenges: 'Integrating the autonomous navigation system with unreliable sensor data under variable lighting conditions was a major hurdle. The original optical sensors were too sensitive to the venue lighting.',
-      outcome: 'Achieved 2nd place in regionals. My redesigned intake mechanism was awarded "Best Engineering Design" for its reliability and speed.'
+      outcome: 'Achieved 2nd place in regionals. My redesigned intake mechanism was awarded "Best Engineering Design" for its reliability and speed.',
+      learnings: 'Learned the importance of sensor fusion and robust error handling in real-time control systems. Also gained experience in rapid prototyping and iterating designs under tight deadlines.'
     },
     {
       id: 'weather-rover',
@@ -96,7 +104,8 @@ const App: React.FC = () => {
       imageUrl: 'https://picsum.photos/600/400?random=102',
       technologies: ['Eagle PCB', 'Arduino', '3D Printing', 'LoRaWAN', 'Fusion 360'],
       challenges: 'Power management for 24-hour operation and weatherproofing the electronics enclosure without causing overheating were significant constraints.',
-      outcome: 'Successfully deployed in a local park for 2 weeks, collecting temperature, humidity, and pressure data. The custom power distribution board efficiency exceeded initial calculations by 15%.'
+      outcome: 'Successfully deployed in a local park for 2 weeks, collecting temperature, humidity, and pressure data. The custom power distribution board efficiency exceeded initial calculations by 15%.',
+      learnings: 'Gained practical knowledge in PCB design for manufacturability (DFM) and thermal management. Understood the trade-offs between component cost, power consumption, and performance.'
     },
     {
       id: 'recycling-cv',
@@ -106,7 +115,8 @@ const App: React.FC = () => {
       imageUrl: 'https://picsum.photos/600/400?random=103',
       technologies: ['Python', 'OpenCV', 'TensorFlow', 'Raspberry Pi', 'Stepper Motors'],
       challenges: 'Differentiating between crushed plastic bottles and aluminum cans with low-resolution camera input required training a custom model on a very specific dataset.',
-      outcome: 'Prototype achieves 85% accuracy in controlled lighting. The research paper on "Accessible Automated Recycling" was presented at the school science fair.'
+      outcome: 'Prototype achieves 85% accuracy in controlled lighting. The research paper on "Accessible Automated Recycling" was presented at the school science fair.',
+      learnings: 'Deepened understanding of CNN architectures and data augmentation techniques. Learned how to deploy ML models on edge devices with limited computational resources.'
     }
   ];
 
@@ -296,10 +306,10 @@ const App: React.FC = () => {
       />
 
       {/* AI Creative Lab */}
-      <Section id="ai-lab" title="AI Research Lab" subtitle="I explore the boundaries of AI with Google's Gemini models. Try both tools below." darker>
+      <Section id="ai-lab" title="AI Research Lab" subtitle="I explore the boundaries of AI with Google's Gemini models. Try the tools below." darker>
         
-        <div className="flex justify-center mb-10">
-          <div className="bg-slate-200 dark:bg-slate-800 p-1.5 rounded-xl inline-flex relative shadow-inner">
+        <div className="flex justify-center mb-10 overflow-x-auto">
+          <div className="bg-slate-200 dark:bg-slate-800 p-1.5 rounded-xl inline-flex relative shadow-inner whitespace-nowrap">
             <button 
               onClick={() => setActiveAiTab('edit')}
               className={`relative z-10 flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${activeAiTab === 'edit' ? 'text-indigo-600 dark:text-white bg-white dark:bg-indigo-600 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
@@ -314,11 +324,26 @@ const App: React.FC = () => {
               <ScanEye size={18} />
               AI Image Analyzer
             </button>
+            <button 
+              onClick={() => setActiveAiTab('quiz')}
+              className={`relative z-10 flex items-center gap-2 px-6 py-3 rounded-lg font-semibold transition-all duration-300 ${activeAiTab === 'quiz' ? 'text-emerald-600 dark:text-white bg-white dark:bg-emerald-600 shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}`}
+            >
+              <FileText size={18} />
+              PDF to Quizlet
+            </button>
           </div>
         </div>
 
+        {/* AI Prompt Guide */}
+        <AiPromptGuide 
+          activeTab={activeAiTab} 
+          onPromptSelect={(prompt) => setEditorPrompt({ text: prompt, autoRun: true, timestamp: Date.now() })} 
+        />
+
         <div className="transition-all duration-500 ease-in-out">
-           {activeAiTab === 'edit' ? <MagicEditor /> : <ImageAnalyzer />}
+           {activeAiTab === 'edit' && <MagicEditor prefilledPrompt={editorPrompt} />}
+           {activeAiTab === 'analyze' && <ImageAnalyzer />}
+           {activeAiTab === 'quiz' && <QuizGenerator />}
         </div>
 
       </Section>
@@ -434,6 +459,9 @@ const App: React.FC = () => {
 
       {/* Scroll to Top */}
       <ScrollToTop />
+      
+      {/* AI Chat Assistant */}
+      <ChatBot />
     </div>
   );
 };

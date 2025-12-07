@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { editImageWithGemini } from '../services/geminiService';
-import { Upload, Wand2, Loader2, Image as ImageIcon, Download, Brain, Sparkles } from 'lucide-react';
+import { Upload, Wand2, Loader2, Image as ImageIcon, Download, Brain, Sparkles, Globe } from 'lucide-react';
 
 const LOADING_MESSAGES = [
   "Analyzing image composition...",
@@ -12,15 +12,89 @@ const LOADING_MESSAGES = [
   "Polishing the final masterpiece..."
 ];
 
-const MagicEditor: React.FC = () => {
+const SAMPLE_IMAGES = [
+  { url: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&q=80', label: 'City' },
+  { url: 'https://images.unsplash.com/photo-1501854140884-074bf86ed91c?w=800&q=80', label: 'Nature' },
+  { url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80', label: 'Tech' },
+  { url: 'https://images.unsplash.com/photo-1489824904134-891ab64532f1?w=800&q=80', label: 'Classic Car' }
+];
+
+interface MagicEditorProps {
+  prefilledPrompt?: { text: string; autoRun: boolean; timestamp: number } | null;
+}
+
+const MagicEditor: React.FC<MagicEditorProps> = ({ prefilledPrompt }) => {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const outputRef = useRef<HTMLDivElement>(null);
+
+  const handleGenerate = async (promptOverride?: string) => {
+    const promptToUse = typeof promptOverride === 'string' ? promptOverride : prompt;
+    
+    if (!originalImage || !promptToUse) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Extract base64 data (remove "data:image/png;base64," prefix)
+      const base64Data = originalImage.split(',')[1];
+      const mimeType = originalImage.split(';')[0].split(':')[1];
+
+      const result = await editImageWithGemini(base64Data, promptToUse, mimeType);
+      setGeneratedImage(result);
+    } catch (err: any) {
+      setError(err.message || "Failed to generate image. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSampleSelect = async (url: string) => {
+    if (isLoading) return;
+    
+    setIsImageLoading(true);
+    setOriginalImage(null);
+    setGeneratedImage(null);
+    setError(null);
+    
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Failed to fetch sample image');
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setOriginalImage(reader.result as string);
+        setIsImageLoading(false);
+      };
+      reader.readAsDataURL(blob);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load sample image. Please try uploading one instead.");
+      setIsImageLoading(false);
+    }
+  };
+
+  // Update prompt and potentially auto-run when prefilledPrompt changes
+  useEffect(() => {
+    if (prefilledPrompt) {
+      setPrompt(prefilledPrompt.text);
+      if (prefilledPrompt.autoRun && originalImage && !isLoading) {
+        handleGenerate(prefilledPrompt.text);
+        // Scroll to output to show progress/result
+        setTimeout(() => {
+          outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+  }, [prefilledPrompt]);
 
   // Handle progress simulation and message rotation
   useEffect(() => {
@@ -68,26 +142,6 @@ const MagicEditor: React.FC = () => {
     }
   };
 
-  const handleGenerate = async () => {
-    if (!originalImage || !prompt) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      // Extract base64 data (remove "data:image/png;base64," prefix)
-      const base64Data = originalImage.split(',')[1];
-      const mimeType = originalImage.split(';')[0].split(':')[1];
-
-      const result = await editImageWithGemini(base64Data, prompt, mimeType);
-      setGeneratedImage(result);
-    } catch (err: any) {
-      setError(err.message || "Failed to generate image. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-slate-800 shadow-2xl transition-colors duration-300">
       <div className="mb-8">
@@ -115,6 +169,11 @@ const MagicEditor: React.FC = () => {
                 alt="Original" 
                 className="h-full w-full object-contain rounded-lg p-2 transition-transform duration-700 ease-in-out group-hover:scale-110" 
               />
+            ) : isImageLoading ? (
+              <div className="text-center p-6">
+                <Loader2 className="w-10 h-10 text-indigo-500 mx-auto mb-3 animate-spin" />
+                <p className="text-slate-600 dark:text-slate-300 font-medium">Loading sample...</p>
+              </div>
             ) : (
               <div className="text-center p-6">
                 <Upload className="w-10 h-10 text-slate-400 dark:text-slate-500 mx-auto mb-3 group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors" />
@@ -136,6 +195,31 @@ const MagicEditor: React.FC = () => {
             )}
           </div>
 
+          {/* Sample Images Selection */}
+          <div>
+             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <Globe size={12} /> Or choose a stock image
+             </p>
+             <div className="grid grid-cols-4 gap-3">
+                {SAMPLE_IMAGES.map((img, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSampleSelect(img.url)}
+                    disabled={isLoading || isImageLoading}
+                    className="group relative aspect-square rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-400 hover:ring-2 hover:ring-indigo-500/20 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    title={`Select ${img.label}`}
+                  >
+                    <img 
+                      src={img.url} 
+                      alt={img.label} 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  </button>
+                ))}
+             </div>
+          </div>
+
           {/* Prompt Input */}
           <div className="space-y-3">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -149,10 +233,10 @@ const MagicEditor: React.FC = () => {
                 className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl p-4 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none h-32 transition-colors"
               />
               <button
-                onClick={handleGenerate}
-                disabled={!originalImage || !prompt || isLoading}
+                onClick={() => handleGenerate()}
+                disabled={!originalImage || !prompt || isLoading || isImageLoading}
                 className={`absolute bottom-3 right-3 px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2 transition-all ${
-                  !originalImage || !prompt || isLoading
+                  !originalImage || !prompt || isLoading || isImageLoading
                     ? 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed'
                     : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
                 }`}
@@ -178,7 +262,7 @@ const MagicEditor: React.FC = () => {
         </div>
 
         {/* Right Column: Output */}
-        <div className="relative min-h-[300px] bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50 flex flex-col items-center justify-center overflow-hidden transition-colors group">
+        <div ref={outputRef} className="relative min-h-[300px] bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50 flex flex-col items-center justify-center overflow-hidden transition-colors group">
           {generatedImage ? (
              <div className="relative w-full h-full p-2 flex flex-col">
                <div className="flex-1 relative overflow-hidden rounded-lg">
@@ -205,7 +289,7 @@ const MagicEditor: React.FC = () => {
                </div>
                <h4 className="text-slate-700 dark:text-slate-300 font-medium mb-2">Ready to Create</h4>
                <p className="text-slate-500 dark:text-slate-500 text-sm">
-                 Upload an image and enter a prompt to see the power of Generative AI in action.
+                 Upload an image or select a stock photo, then enter a prompt to see the power of Generative AI.
                </p>
             </div>
           )}

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { X, Code2, AlertTriangle, Trophy, Calendar } from 'lucide-react';
+import { X, Code2, AlertTriangle, Trophy, Lightbulb } from 'lucide-react';
 import { Project } from '../types';
 
 interface ProjectModalProps {
@@ -102,6 +102,15 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose })
                 </h4>
                 <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
                   {project.outcome}
+                </p>
+              </div>
+
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-5 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                <h4 className="font-bold text-blue-800 dark:text-blue-200 mb-2 flex items-center gap-2">
+                  <Lightbulb size={18} /> Key Learnings
+                </h4>
+                <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+                  {project.learnings}
                 </p>
               </div>
             </div>

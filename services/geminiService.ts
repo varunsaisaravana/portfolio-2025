@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Chat } from "@google/genai";
 
 const getAiClient = () => {
   const apiKey = process.env.API_KEY;
@@ -6,6 +6,41 @@ const getAiClient = () => {
     throw new Error("API Key not found in environment variables");
   }
   return new GoogleGenAI({ apiKey });
+};
+
+export const createChatSession = (): Chat => {
+  const ai = getAiClient();
+  // Using gemini-3-pro-preview for high-quality conversational assistance
+  return ai.chats.create({
+    model: "gemini-3-pro-preview",
+    config: {
+      systemInstruction: `You are the intelligent assistant for Varun's Student Portfolio website. Your role is to help visitors navigate the site, understand Varun's projects, and utilize the AI Lab features.
+
+      **Your Knowledge Base:**
+      
+      1.  **Varun's Profile:**
+          *   **Role:** High school student, aspiring engineer, and innovator.
+          *   **Key Skills:** Robotics (C++, ROS), Coding (React, Python), Engineering (PCB Design, SolidWorks).
+          *   **Athletics:** Competitive Rowing and Sailing.
+          *   **Arts:** Piano and Choir.
+          *   **Projects:** Regional Robotics Competition (2nd Place), Autonomous Weather Rover, AI Recycling Sorter.
+      
+      2.  **AI Lab Features (How to guide users):**
+          *   **AI Image Editor:** Uses 'gemini-2.5-flash-image'. Instruct users to upload a photo and type a prompt (e.g., "Turn this into a sketch") to creatively edit images.
+          *   **Visual Intelligence:** Uses 'gemini-3-pro-preview'. Instruct users to upload an image to get a detailed scene description and object analysis.
+          *   **PDF to Quizlet:** Uses 'gemini-2.5-flash'. Instruct users to upload a PDF (like study notes) to generate flashcards they can copy to Quizlet.
+      
+      3.  **Contact Info:**
+          *   **Email:** varun.jo.sp@gmail.com
+          *   **LinkedIn:** Mention that the link is available in the website footer.
+      
+      **Behavior:**
+      *   Be helpful, encouraging, and professional.
+      *   Keep responses concise and easy to read.
+      *   If asked about features not on the site, politely clarify what IS available.
+      *   Help users craft prompts for the AI tools if they are stuck.`,
+    },
+  });
 };
 
 export const editImageWithGemini = async (
@@ -91,5 +126,52 @@ export const analyzeImageWithGemini = async (
   } catch (error: any) {
     console.error("Gemini Image Analysis Error:", error);
     throw new Error(error.message || "Failed to analyze image");
+  }
+};
+
+export const generateQuizFromDocument = async (
+  base64Data: string,
+  mimeType: string = "application/pdf"
+): Promise<Array<{ term: string; definition: string }>> => {
+  try {
+    const ai = getAiClient();
+    // Using gemini-2.5-flash for fast text/document processing
+    const modelId = "gemini-2.5-flash"; 
+
+    const response = await ai.models.generateContent({
+      model: modelId,
+      contents: {
+        parts: [
+          {
+            inlineData: {
+              mimeType: mimeType,
+              data: base64Data,
+            },
+          },
+          {
+            text: "Analyze this document and generate a set of flashcards for studying. Focus on key terms, important dates, and core concepts. Return the result as a JSON array of objects, where each object has a 'term' and a 'definition'. Limit to the most important 20 concepts.",
+          },
+        ],
+      },
+      config: {
+        responseMimeType: "application/json",
+      }
+    });
+
+    const text = response.text;
+    if (!text) throw new Error("No response text");
+    
+    const data = JSON.parse(text);
+    
+    if (Array.isArray(data)) return data;
+    if (data.flashcards && Array.isArray(data.flashcards)) return data.flashcards;
+    if (data.cards && Array.isArray(data.cards)) return data.cards;
+    
+    // Attempt to handle wrapped responses or assume empty if structure doesn't match
+    return [];
+
+  } catch (error: any) {
+    console.error("Gemini Quiz Gen Error:", error);
+    throw new Error(error.message || "Failed to generate quiz from document");
   }
 };

@@ -7,6 +7,7 @@ export interface Project {
   technologies: string[];
   challenges: string;
   outcome: string;
+  learnings: string;
 }
 
 export interface Activity {
