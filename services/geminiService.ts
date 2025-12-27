@@ -23,7 +23,11 @@ export const createChatSession = (): Chat => {
           *   **Key Skills:** Robotics (C++, ROS), Coding (React, Python), Engineering (PCB Design, SolidWorks).
           *   **Athletics:** Competitive Rowing and Sailing.
           *   **Arts:** Piano and Choir.
-          *   **Projects:** Regional Robotics Competition (2nd Place), Autonomous Weather Rover, AI Recycling Sorter.
+          *   **Projects:** 
+              - Regional Robotics Competition (2nd Place in regionals).
+              - Autonomous Weather Rover (IoT monitoring).
+              - AI Recycling Sorter (Computer Vision).
+              - Autonomous Wind-Powered Smart Water Management System (AWSWMS): A high-impact project modernizing traditional windmills with IoT sensors, hybrid wind/solar power, and robotic distribution valves for rural water security.
       
       2.  **AI Lab Features (How to guide users):**
           *   **AI Image Editor:** Uses 'gemini-2.5-flash-image'. Instruct users to upload a photo and type a prompt (e.g., "Turn this into a sketch") to creatively edit images.

@@ -8,6 +8,7 @@ import ProjectModal from './components/ProjectModal';
 import LoadingScreen from './components/LoadingScreen';
 import ScrollToTop from './components/ScrollToTop';
 import AiPromptGuide from './components/AiPromptGuide';
+import BlogSection from './components/BlogSection';
 import { Project } from './types';
 import { 
   Bot, 
@@ -77,11 +78,12 @@ const App: React.FC = () => {
 
   const navLinks = [
     { name: 'About', href: '#about' },
-    { name: 'Engineering & Robotics', href: '#engineering' },
-    { name: 'Arts & Music', href: '#arts' },
-    { name: 'Athletics', href: '#athletics' },
+    { name: 'Engineering', href: '#engineering' },
     { name: 'AI Lab', href: '#ai-lab' },
-    { name: 'Family & Travel', href: '#gallery' },
+    { name: 'Blog', href: '#blog' },
+    { name: 'Athletics', href: '#athletics' },
+    { name: 'Arts', href: '#arts' },
+    { name: 'Gallery', href: '#gallery' },
   ];
 
   const projects: Project[] = [
@@ -90,18 +92,29 @@ const App: React.FC = () => {
       title: 'Regional Robotics Competition',
       category: 'Robotics',
       description: 'Lead programmer and mechanical designer for regional robotics team. Developed autonomous navigation routines and optimized mechanical intake systems.',
-      imageUrl: 'https://picsum.photos/600/400?random=101',
+      imageUrl: 'https://images.unsplash.com/photo-1561557944-6e7860d1a7eb?w=800&q=80',
       technologies: ['C++', 'PID Control', 'Computer Vision', 'SolidWorks', 'ROS'],
       challenges: 'Integrating the autonomous navigation system with unreliable sensor data under variable lighting conditions was a major hurdle. The original optical sensors were too sensitive to the venue lighting.',
       outcome: 'Achieved 2nd place in regionals. My redesigned intake mechanism was awarded "Best Engineering Design" for its reliability and speed.',
       learnings: 'Learned the importance of sensor fusion and robust error handling in real-time control systems. Also gained experience in rapid prototyping and iterating designs under tight deadlines.'
     },
     {
+      id: 'awswms-project',
+      title: 'Autonomous Wind-Powered Water System',
+      category: 'Engineering',
+      description: 'A self-sufficient water management system (AWSWMS) modernizing traditional wind-pump technology with IoT sensors, hybrid power, and automated distribution networks for rural sustainability.',
+      imageUrl: 'https://images.unsplash.com/photo-1518176259641-07b502893932?w=800&q=80',
+      technologies: ['Arduino', 'LoRaWAN', 'Hybrid Wind/Solar', 'IoT Sensors', 'Automated Valves'],
+      challenges: 'Solving power intermittency through hybrid storage and designing a robust robotic distribution network capable of operating in harsh, off-grid environments with minimal manual intervention.',
+      outcome: 'Modernized traditional mechanical pumping into a data-driven utility, significantly reducing labor costs while providing a reliable 24/7 water supply for agriculture.',
+      learnings: 'Deepened understanding of long-range wireless data transmission (LoRa) and optimized hybrid energy distribution systems for high-torque mechanical loads.'
+    },
+    {
       id: 'weather-rover',
       title: 'Autonomous Weather Rover',
       category: 'Engineering',
       description: 'Designed custom PCBs and 3D printed chassis for a weather monitoring rover capable of traversing rough terrain while collecting environmental data.',
-      imageUrl: 'https://picsum.photos/600/400?random=102',
+      imageUrl: 'https://images.unsplash.com/photo-1581094751180-2022b7a9f72c?w=800&q=80',
       technologies: ['Eagle PCB', 'Arduino', '3D Printing', 'LoRaWAN', 'Fusion 360'],
       challenges: 'Power management for 24-hour operation and weatherproofing the electronics enclosure without causing overheating were significant constraints.',
       outcome: 'Successfully deployed in a local park for 2 weeks, collecting temperature, humidity, and pressure data. The custom power distribution board efficiency exceeded initial calculations by 15%.',
@@ -112,7 +125,7 @@ const App: React.FC = () => {
       title: 'AI Recycling Sorter',
       category: 'Research',
       description: 'Exploring computer vision applications for sorting recyclable materials. Created a prototype conveyor belt system that identifies and separates plastics.',
-      imageUrl: 'https://picsum.photos/600/400?random=103',
+      imageUrl: 'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?w=800&q=80',
       technologies: ['Python', 'OpenCV', 'TensorFlow', 'Raspberry Pi', 'Stepper Motors'],
       challenges: 'Differentiating between crushed plastic bottles and aluminum cans with low-resolution camera input required training a custom model on a very specific dataset.',
       outcome: 'Prototype achieves 85% accuracy in controlled lighting. The research paper on "Accessible Automated Recycling" was presented at the school science fair.',
@@ -260,14 +273,14 @@ const App: React.FC = () => {
       <Section id="engineering" title="Engineering & Robotics" subtitle="From concept to prototype, I love building things that move. Click on a project to learn more." className="relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl -z-10"></div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {projects.map((project) => (
             <div 
               key={project.id}
               onClick={() => setSelectedProject(project)}
               className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group flex flex-col"
             >
-              <div className="h-48 overflow-hidden relative">
+              <div className="h-40 overflow-hidden relative">
                 <img 
                   src={project.imageUrl} 
                   alt={project.title} 
@@ -279,19 +292,19 @@ const App: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="flex items-center gap-2 mb-3">
-                   {project.category === 'Robotics' && <Bot size={16} className="text-indigo-500" />}
-                   {project.category === 'Engineering' && <Cpu size={16} className="text-cyan-500" />}
-                   {project.category === 'Research' && <Layers size={16} className="text-purple-500" />}
-                   <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{project.category}</span>
+              <div className="p-5 flex flex-col flex-grow">
+                <div className="flex items-center gap-2 mb-2">
+                   {project.category === 'Robotics' && <Bot size={14} className="text-indigo-500" />}
+                   {project.category === 'Engineering' && <Cpu size={14} className="text-cyan-500" />}
+                   {project.category === 'Research' && <Layers size={14} className="text-purple-500" />}
+                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">{project.category}</span>
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{project.title}</h3>
-                <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-4 flex-grow">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 leading-tight">{project.title}</h3>
+                <p className="text-slate-600 dark:text-slate-400 text-xs line-clamp-2 mb-4 flex-grow">
                   {project.description}
                 </p>
-                <div className="flex items-center text-indigo-600 dark:text-indigo-400 font-semibold text-sm group-hover:gap-2 transition-all">
-                  Read More <ArrowRight size={16} className="ml-1" />
+                <div className="flex items-center text-indigo-600 dark:text-indigo-400 font-semibold text-xs group-hover:gap-2 transition-all mt-auto">
+                  Read More <ArrowRight size={14} className="ml-1" />
                 </div>
               </div>
             </div>
@@ -347,6 +360,9 @@ const App: React.FC = () => {
         </div>
 
       </Section>
+      
+      {/* Blog Section */}
+      <BlogSection />
 
       {/* Athletics */}
       <Section id="athletics" title="Athletics" subtitle="Discipline, teamwork, and endurance on the water." className="bg-slate-900 dark:bg-slate-900">
@@ -354,7 +370,7 @@ const App: React.FC = () => {
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 relative group rounded-3xl overflow-hidden h-96 shadow-lg">
             <img 
-              src="https://picsum.photos/800/600?random=3" 
+              src="https://images.unsplash.com/photo-1542385151-efd9000785a0?w=800&q=80" 
               alt="Rowing" 
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
@@ -369,7 +385,7 @@ const App: React.FC = () => {
           
           <div className="relative group rounded-3xl overflow-hidden h-96 shadow-lg">
             <img 
-              src="https://picsum.photos/400/600?random=4" 
+              src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=800&q=80" 
               alt="Sailing" 
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
@@ -403,7 +419,7 @@ const App: React.FC = () => {
                 Classically trained with a focus on romantic era compositions. Piano teaches me patience, precision, and the ability to express complex emotions without words.
               </p>
               <div className="w-full h-48 bg-slate-200 dark:bg-slate-800 rounded-lg overflow-hidden relative">
-                  <img src="https://picsum.photos/500/300?grayscale&random=5" alt="Piano Keys" className="w-full h-full object-cover opacity-60" />
+                  <img src="https://images.unsplash.com/photo-1520529688591-b213eb329182?w=500&q=80" alt="Piano Keys" className="w-full h-full object-cover opacity-60" />
               </div>
            </div>
 
@@ -416,7 +432,7 @@ const App: React.FC = () => {
                 Member of the school choir. Learning the importance of listening to others and contributing to a collective sound that is greater than the sum of its parts.
               </p>
               <div className="w-full h-48 bg-slate-200 dark:bg-slate-800 rounded-lg overflow-hidden relative">
-                  <img src="https://picsum.photos/500/300?grayscale&random=6" alt="Choir Sheet Music" className="w-full h-full object-cover opacity-60" />
+                  <img src="https://images.unsplash.com/photo-1507838546684-2f22b859385a?w=500&q=80" alt="Choir Sheet Music" className="w-full h-full object-cover opacity-60" />
               </div>
            </div>
         </div>
@@ -428,7 +444,7 @@ const App: React.FC = () => {
           {[7, 8, 9, 10, 11, 12].map((i) => (
             <div key={i} className="break-inside-avoid relative group rounded-xl overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
               <img 
-                src={`https://picsum.photos/400/${i % 2 === 0 ? '500' : '300'}?random=${i}`} 
+                src={`https://images.unsplash.com/photo-${1500000000000 + (i * 100000)}?auto=format&fit=crop&w=800&q=80`} 
                 alt="Travel and Family" 
                 className="w-full h-auto transform transition-transform duration-500 group-hover:scale-110" 
               />
